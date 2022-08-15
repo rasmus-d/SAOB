@@ -2,8 +2,12 @@ module Tokenizer where
     import Data.Map (Map, empty)
     import Text.Parsec.Char (alphaNum)
     import Data.Char (isAlphaNum)
-    data Token = TokOrd String | TokEjOrd Char deriving(Show)
-    
+    data Token = TokOrd String | TokEjOrd Char | TokSep Char
+    instance Show Token where
+        show (TokOrd s) = s
+        show (TokEjOrd c) = [c]
+        show (TokSep c) = [c]
+
     
     -- O(n) Läser tills nyrad, returnerar läst data samt återstående text i en tupel
     getWords :: [Char] -> ([Char], [Char])
@@ -40,18 +44,19 @@ module Tokenizer where
     tokenize :: String -> [Token]
     tokenize l@(h:t) 
         | isAlphaNum h = tok:tokenize t' 
-        | seperator h = tokenize t
+        | seperator h = TokSep h : tokenize t
         | otherwise = TokEjOrd h : tokenize t
         where 
             (tok, t') = tokenizeWord l []
     tokenize [] = []
 
     translate :: [Token] -> [(String,String)] -> String
-    translate (TokEjOrd eo:toks) table = ' ':eo : translate toks table
-    translate (TokOrd ord1 : TokOrd ord2 : toks) table = ' ':ord1 ++ ' ':ord2 ++ translate toks table
+    translate (TokSep sep : toks) table = sep : translate toks table
+    translate (TokEjOrd eo:toks) table = eo : translate toks table
+    translate (TokOrd ord1 : TokOrd ord2 : toks) table = ord1 ++ ord2 ++ translate toks table
     translate (TokOrd ord : TokEjOrd '.' : toks) table = case lookup (ord++".") table of
-        Just v -> ' ':v ++ translate toks table
-        Nothing -> ' ':ord ++ '.':translate toks table
+        Just v -> v ++ translate toks table
+        Nothing -> ord ++ "." ++ translate toks table
     translate (TokOrd o:toks) table = o ++ translate toks table
     translate [] table = []
     

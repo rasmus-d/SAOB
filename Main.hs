@@ -10,5 +10,5 @@ module Main where
         let table = createTable f1 []
         let tokens = tokenize f2
         let parsed = translate tokens table
-        print parsed
+        writeFile "res.txt" parsed
         
