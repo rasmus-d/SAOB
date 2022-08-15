@@ -7,27 +7,6 @@ module Tokenizer where
         show (TokOrd s) = s
         show (TokEjOrd c) = [c]
         show (TokSep c) = [c]
-
-    
-    -- O(n) Läser tills nyrad, returnerar läst data samt återstående text i en tupel
-    getWords :: [Char] -> ([Char], [Char])
-    getWords (h:t)
-        | h == '\n' = ([],t)
-        | otherwise = (h:v,t') where
-            (v,t') = getWords t
-    getWords [] = ([],[])
-    -- O(n) Skapar en associativ lista av en csv sträng sepererat av tabb
-    createTable :: [Char] -> [Char] -> [([Char], [Char])]
-    createTable (h:t) k
-        | h == '\t' = (k, v') : createTable t' []
-        | otherwise = createTable t (k++[h])
-        where (v',t') = getWords t
-    createTable [] [] = []
-    createTable _ _ = error "ERROR!"
-    -- O(n) Skapar en map av en csv sträng sepererat av tabb
-    --createMap :: String -> Map String String
-    --createMap text = fromList (createTable text [])
-
     
     seperator :: Char -> Bool
     seperator c 
@@ -48,17 +27,6 @@ module Tokenizer where
         | otherwise = TokEjOrd h : tokenize t
         where 
             (tok, t') = tokenizeWord l []
-    tokenize [] = []
-
-    translate :: [Token] -> [(String,String)] -> String
-    translate (TokSep sep : toks) table = sep : translate toks table
-    translate (TokEjOrd eo:toks) table = eo : translate toks table
-    translate (TokOrd ord1 : TokOrd ord2 : toks) table = ord1 ++ ord2 ++ translate toks table
-    translate (TokOrd ord : TokEjOrd '.' : toks) table = case lookup (ord++".") table of
-        Just v -> v ++ translate toks table
-        Nothing -> ord ++ "." ++ translate toks table
-    translate (TokOrd o:toks) table = o ++ translate toks table
-    translate [] table = []
-    
+    tokenize [] = []    
     
     
