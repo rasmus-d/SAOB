@@ -10,7 +10,7 @@ module Parser where
 
     isSeperator :: Char -> Bool
     isSeperator c
-        | c `elem` " \"\n\t\r()" = True
+        | c `elem` " \"\n\t\r()," = True
         | otherwise = False
 
     -- Gå igenom en omvänd sträng och försök hitta den största delsträngen i en uppslagstabell.
